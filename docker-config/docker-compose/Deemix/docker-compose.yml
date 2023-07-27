@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+  deemix:
+    image: registry.gitlab.com/bockiii/deemix-docker
+    container_name: Deemix
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /mnt/nfs/data/music:/downloads
+      - /home/samuel/docker/downloaders/deemix/data:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deemix.entrypoints=http"
+      - "traefik.http.routers.deemix.rule=Host(`deemix.local.getsamhome.com`)"
+      - "traefik.http.middlewares.deemix-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.deemix.middlewares=deemix-https-redirect"
+      - "traefik.http.routers.deemix-secure.entrypoints=https"
+      - "traefik.http.routers.deemix-secure.rule=Host(`deemix.local.getsamhome.com`)"
+      - "traefik.http.routers.deemix-secure.tls=true"
+      - "traefik.http.routers.deemix-secure.service=deemix"
+      - "traefik.http.services.deemix.loadbalancer.server.port=6595"
+      - "traefik.docker.network=proxy"
+    environment:
+      - PUID=3002
+      - PGID=3002
+      - UMASK_SET=022
+      - DEEMIX_SINGLE_USER=true
+    ports:
+      - 6595:6595
+networks:
+  proxy:
+    external: true

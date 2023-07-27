@@ -1,0 +1,35 @@
+version: "3"
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - "/home/samuel/docker/media/navidrome/data:/data"
+      - "/mnt/nfs/data/music:/music:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.navidrome.entrypoints=http"
+      - "traefik.http.routers.navidrome.rule=Host(`navidrome.local.getsamhome.com`)"
+      - "traefik.http.middlewares.navidrome-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.navidrome.middlewares=navidrome-https-redirect"
+      - "traefik.http.routers.navidrome-secure.entrypoints=https"
+      - "traefik.http.routers.navidrome-secure.rule=Host(`navidrome.local.getsamhome.com`)"
+      - "traefik.http.routers.navidrome-secure.tls=true"
+      - "traefik.http.routers.navidrome-secure.service=navidrome"
+      - "traefik.http.services.navidrome.loadbalancer.server.port=6595"
+      - "traefik.docker.network=proxy"
+    user: 3002:3002 # should be owner of volumes
+    ports:
+      - "4533:4533"
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_SCANSCHEDULE: 30m
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ""
+networks:
+  proxy:
+    external: true

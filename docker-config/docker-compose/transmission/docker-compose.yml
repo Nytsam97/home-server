@@ -1,0 +1,40 @@
+---
+version: "2.1"
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+      - TRANSMISSION_WEB_HOME= #optional
+      - USER= 
+      - PASS= #optional
+      - WHITELIST= #optional
+      - PEERPORT= #optional
+      - HOST_WHITELIST= #optional
+    volumes:
+      - //home/samuel/docker/downloaders/transmission/config:/config
+      - /mnt/nfs/data/torrents:/downloads
+      - //mnt/nfs/data/torrents/torfiles:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.transmission-secure.rule=Host(`transmission.local.getsamhome.com`)"
+      - "traefik.http.routers.transmission-secure.entrypoints=websecure"
+      - "traefik.http.routers.transmission-secure.tls=true"
+      - "traefik.http.routers.transmission-secure.service=transmission"
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

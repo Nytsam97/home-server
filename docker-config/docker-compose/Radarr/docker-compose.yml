@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    networks:
+      - proxy
+    ports:
+      - "7878:7878"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Canada/Eastern
+    volumes:
+      - /home/samuel/docker/arr/radarr/config:/config
+      - /mnt/nfs/data:/data
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr-secure.rule=Host(`radarr.local.getsamhome.com`)"
+      - "traefik.http.routers.radarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.radarr-secure.tls=true"
+      - "traefik.http.routers.radarr-secure.service=radarr"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,27 @@
+version: '3'
+services:
+     jellyseerr:
+       image: fallenbagel/jellyseerr:latest
+       container_name: jellyseerr
+       networks:
+          - proxy
+       environment:
+          - LOG_LEVEL=debug
+          - TZ=Canada/Eastern
+       ports:
+          - 5055:5055
+       volumes:
+          - /home/samuel/docker/media/jellyseer/config:/app/config
+       restart: unless-stopped
+       labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.jellyseer-secure.rule=Host(`jellyseer.local.getsamhome.com`)"
+          - "traefik.http.routers.jellyseer-secure.entrypoints=websecure"
+          - "traefik.http.routers.jellyseer-secure.tls=true"
+          - "traefik.http.routers.jellyseer-secure.service=jellyseer"
+          - "traefik.http.services.jellyseer.loadbalancer.server.port=5055"
+          - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

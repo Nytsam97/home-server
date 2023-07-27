@@ -11,11 +11,11 @@ services:
       - /home/samuel/docker/downloaders/deemix/data:/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.deemix.entrypoints=http"
+      - "traefik.http.routers.deemix.entrypoints=web"
       - "traefik.http.routers.deemix.rule=Host(`deemix.local.getsamhome.com`)"
       - "traefik.http.middlewares.deemix-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.deemix.middlewares=deemix-https-redirect"
-      - "traefik.http.routers.deemix-secure.entrypoints=https"
+      - "traefik.http.routers.deemix-secure.entrypoints=websecure"
       - "traefik.http.routers.deemix-secure.rule=Host(`deemix.local.getsamhome.com`)"
       - "traefik.http.routers.deemix-secure.tls=true"
       - "traefik.http.routers.deemix-secure.service=deemix"

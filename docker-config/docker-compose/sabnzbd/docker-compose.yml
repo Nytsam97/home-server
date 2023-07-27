@@ -1,0 +1,31 @@
+---
+version: "2.1"
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+    volumes:
+      - /home/samuel/docker/downloaders/sabnzbd/config:/config
+      - /mnt/nfs/data/usenet:/downloads #optional
+    ports:
+      - 8383:8383
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sabnzbd-secure.rule=Host(`sabnzbd.local.getsamhome.com`)"
+      - "traefik.http.routers.sabnzbd-secure.entrypoints=websecure"
+      - "traefik.http.routers.sabnzbd-secure.tls=true"
+      - "traefik.http.routers.sabnzbd-secure.service=sabnzbd"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8383"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

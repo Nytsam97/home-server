@@ -1,0 +1,29 @@
+version: "2.1"
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+    volumes:
+      - /home/samuel/docker/arr/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr-secure.rule=Host(`prowlarr.local.getsamhome.com`)"
+      - "traefik.http.routers.prowlarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr-secure.tls=true"
+      - "traefik.http.routers.prowlarr-secure.service=prowlarr"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,31 @@
+
+version: "3"
+services:
+  sickgear:
+    container_name: sickgear
+    networks:
+      - proxy
+    image: lscr.io/linuxserver/sickgear:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+    ports:
+      - 8081:8081
+    volumes:
+      - /home/samuel/docker/arr/sickgear/sickgear-data:/config
+      - /mnt/nfs/data/usenet:/downloads
+      - /mnt/nfs/data/media:/tv
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sickgear-secure.rule=Host(`sickgear.local.getsamhome.com`)"
+      - "traefik.http.routers.sickgear-secure.entrypoints=websecure"
+      - "traefik.http.routers.sickgear-secure.tls=true"
+      - "traefik.http.routers.sickgear-secure.service=sickgear"
+      - "traefik.http.services.sickgear.loadbalancer.server.port=8081"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

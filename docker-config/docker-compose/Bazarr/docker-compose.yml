@@ -1,0 +1,30 @@
+version: "2.1"
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    networks:
+      - proxy
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+    volumes:
+      - /home/samuel/docker/arr/bazarr/config:/config
+      - /mnt/nfs/data/media:/data
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr-secure.rule=Host(`bazarr.local.getsamhome.com`)"
+      - "traefik.http.routers.bazarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.bazarr-secure.tls=true"
+      - "traefik.http.routers.bazarr-secure.service=bazarr"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,34 @@
+---
+version: "2.1"
+services:
+  deluge:
+    image: lscr.io/linuxserver/deluge:latest
+    container_name: deluge
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - /home/samuel/docker/downloaders/deluge/config:/config
+      - /mnt/nfs/data/torrents:/downloads
+    ports:
+      - 8112:8112
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deluge-secure.rule=Host(`deluge.local.getsamhome.com`)"
+      - "traefik.http.routers.deluge-secure.entrypoints=websecure"
+      - "traefik.http.routers.deluge-secure.tls=true"
+      - "traefik.http.routers.deluge-secure.service=deluge"
+      - "traefik.http.services.deluge.loadbalancer.server.port=8112"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

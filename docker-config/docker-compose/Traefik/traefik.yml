@@ -1,28 +1,42 @@
+#Enable API and Dashboard
 api:
   dashboard: true
   debug: true
+# Entry points configuration
+#
 entryPoints:
-  http:
+  web:
     address: ":80"
+    # redirect to https
     http:
       redirections:
         entryPoint:
-          to: https
+          to: websecure
           scheme: https
-  https:
+  websecure:
     address: ":443"
+
+  mariadb:
+    address: ":3306"
+
 serversTransport:
   insecureSkipVerify: true
+
+# docker provider configuration
+#
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
     filename: /config.yml
+
+# certificate configuration for my resolvers and domain
+#
 certificatesResolvers:
   cloudflare:
     acme:
-      email: you@example.com
+      email: savesaviourcomplex@proton.me
       storage: acme.json
       dnsChallenge:
         provider: cloudflare

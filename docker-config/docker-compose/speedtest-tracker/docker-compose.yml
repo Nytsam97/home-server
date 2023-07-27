@@ -1,0 +1,32 @@
+version: '3.3'
+services:
+    speedtest-tracker:
+        container_name: speedtest-tracker
+        networks:
+            - proxy
+        ports:
+            - '8080:80'
+            - '8443:443'
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Canafa/Eastern
+        volumes:
+            - '/etc/localtime:/etc/localtime:ro'
+            - '/home/samuel/docker/utilities/speedtest/config:/config'
+            - '/home/samuel/docker/utilities/speedtest/web:/etc/ssl/web'
+        image: 'ghcr.io/alexjustesen/speedtest-tracker:latest'
+        restart: unless-stopped
+
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.speedtest-tracker-secure.rule=Host(`speedtest-tracker.local.getsamhome.com`)"
+            - "traefik.http.routers.speedtest-tracker-secure.entrypoints=websecure"
+            - "traefik.http.routers.speedtest-tracker-secure.tls=true"
+            - "traefik.http.routers.speedtest-tracker-secure.service=speedtest-tracker"
+            - "traefik.http.services.speedtest-tracker.loadbalancer.server.port=80"
+            - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true

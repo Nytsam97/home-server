@@ -1,0 +1,31 @@
+---
+version: "2.1"
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Canada/Eastern
+    volumes:
+      - /home/samuel/docker/administration/nextcloud/appdata:/config
+      - /home/samuel/docker/administration/nextcloud/data:/data
+    ports:
+      - 2443:443
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud-secure.rule=Host(`nextcloud.local.getsamhome.com`)"
+      - "traefik.http.routers.nextcloud-secure.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud-secure.tls=true"
+      - "traefik.http.routers.nextcloud-secure.service=nextcloud"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=2443"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true
